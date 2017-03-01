@@ -3,11 +3,76 @@
 
 > A module for validating a Screwdriver Template file
 
+## yaml
+
+```yaml
+# example.yaml
+name: tkyi/nodejs_main
+version: 2.0.1
+description: |
+  Template for a NodeJS main job. Installs the NPM module dependencies and executes
+  the test target.
+maintainer: tiffanykyi@gmail.com
+config:
+  image: node:4
+  steps:
+    - install: npm install
+    - test: npm test
+  environment:
+    NODE_ENV: production
+  secrets:
+     - NPM_TOKEN
+
+```
+
 ## Usage
 
+
 ```bash
-npm install screwdriver-template-validator
+$ npm install screwdriver-template-validator
 ```
+
+Validate in Node.js:
+
+```javascript
+const fs = require('fs');  // standard fs module
+const validator = require('screwdriver-template-validator');
+
+// The "example.yaml" is the YAML described above
+validator(fs.readFileSync('example.yaml'))
+    .then((templateData) => {
+        console.log(templateData);
+    });
+```
+
+Output of the console.log():
+
+```javascript
+{
+    "name": "tkyi/nodejs_main",
+    "version": "2.0.1",
+    "description": "Template for a NodeJS main ...",  //truncated for brevity
+    "maintainer": "tiffanykyi@gmail.com",
+    "config": {
+        "environment": {
+            "NODE_ENV": "production"
+        },
+        "image": "node:4",
+        "secrets": [
+            "NPM_TOKEN"
+        ],
+        "steps": [{
+            "install": "npm install"
+        }, {
+            "test": "npm test"
+        }]
+    }
+}
+```
+
+
+
+
 
 ## Testing
 
