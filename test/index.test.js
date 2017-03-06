@@ -2,6 +2,8 @@
 
 const assert = require('chai').assert;
 const fs = require('fs');
+const hoek = require('hoek');
+const Yaml = require('js-yaml');
 const path = require('path');
 
 const TEST_YAML_FOLDER = path.resolve(__dirname, 'data');
@@ -64,7 +66,22 @@ describe('index test', () => {
 
         return validator(yamlString)
         .then(assert.fail, (err) => {
+            const config = Yaml.safeLoad(yamlString);
+
             assert.match(err, /ValidationError/);
+            assert.strictEqual(2, err.details.length);
+
+            // Get details of a missing field
+            const missingField = hoek.reach(config, err.details[0].path);
+
+            assert.strictEqual('"description" is required', err.details[0].message);
+            assert.isUndefined(missingField);
+
+            // Get deatils of an incorrect type assigned to a field
+            const incorrectType = hoek.reach(config, err.details[1].path);
+
+            assert.strictEqual('"image" must be a string', err.details[1].message);
+            assert.isNumber(incorrectType);
         });
     });
 });
