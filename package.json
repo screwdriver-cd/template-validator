@@ -33,6 +33,7 @@
     "chai": "^3.5.0",
     "eslint": "^3.9.1",
     "eslint-config-screwdriver": "^2.0.9",
+    "hoek": "^4.1.0",
     "jenkins-mocha": "^3.0.0"
   },
   "dependencies": {
