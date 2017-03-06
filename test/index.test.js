@@ -2,6 +2,7 @@
 
 const assert = require('chai').assert;
 const fs = require('fs');
+const hoek = require('hoek');
 const path = require('path');
 
 const TEST_YAML_FOLDER = path.resolve(__dirname, 'data');
@@ -25,11 +26,45 @@ describe('index test', () => {
             assert.isObject(config);
 
             assert.deepEqual(config, {
+                errors: [],
+                template: {
+                    config: {
+                        environment: {
+                            KEYNAME: 'value'
+                        },
+                        image: 'image_name:image_tag',
+                        secrets: [
+                            'SECRET_NAME'
+                        ],
+                        steps: [
+                            {
+                                first_step: 'first_command'
+                            },
+                            {
+                                second_step: './second_script.sh'
+                            }
+                        ]
+                    },
+                    description: 'template description',
+                    maintainer: 'name@domain.suffix',
+                    name: 'template_namespace/template_name',
+                    version: '1.2.3'
+                }
+            });
+        });
+    });
+
+    it('validates a poorly structured template', () => {
+        const yamlString = fs.readFileSync(BAD_STRUCTURE_TEMPLATE_PATH);
+
+        return validator(yamlString)
+        .then((result) => {
+            assert.deepEqual(result.template, {
                 config: {
                     environment: {
                         KEYNAME: 'value'
                     },
-                    image: 'image_name:image_tag',
+                    image: 1,
                     secrets: [
                         'SECRET_NAME'
                     ],
@@ -42,12 +77,24 @@ describe('index test', () => {
                         }
                     ]
                 },
-                description: 'template description',
                 maintainer: 'name@domain.suffix',
                 name: 'template_namespace/template_name',
                 version: '1.2.3'
             });
-        });
+            assert.strictEqual(result.errors.length, 2);
+
+            // check required description
+            const missingField = hoek.reach(result.template, result.errors[0].path);
+
+            assert.strictEqual(result.errors[0].message, '"description" is required');
+            assert.isUndefined(missingField);
+
+            // check incorrect type
+            const incorrectType = hoek.reach(result.template, result.errors[1].path);
+
+            assert.strictEqual(result.errors[1].message, '"image" must be a string');
+            assert.isNumber(incorrectType);
+        }, assert.fail);
     });
 
     it('throws when parsing incorrectly formatted yaml', () => {
@@ -56,15 +103,6 @@ describe('index test', () => {
         return validator(yamlString)
         .then(assert.fail, (err) => {
             assert.match(err, /YAMLException/);
-        });
-    });
-
-    it('throws when parsing a poorly structured template', () => {
-        const yamlString = fs.readFileSync(BAD_STRUCTURE_TEMPLATE_PATH);
-
-        return validator(yamlString)
-        .then(assert.fail, (err) => {
-            assert.match(err, /ValidationError/);
         });
     });
 });
