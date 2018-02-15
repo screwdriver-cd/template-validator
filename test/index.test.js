@@ -84,13 +84,14 @@ describe('index test', () => {
             assert.strictEqual(result.errors.length, 2);
 
             // check required description
-            const missingField = hoek.reach(result.template, result.errors[0].path);
+            const missingField = hoek.reach(result.template, result.errors[0].path[0]);
 
             assert.strictEqual(result.errors[0].message, '"description" is required');
             assert.isUndefined(missingField);
 
             // check incorrect type
-            const incorrectType = hoek.reach(result.template, result.errors[1].path);
+            const chain = `${result.errors[1].path[0]}.${result.errors[1].path[1]}`;
+            const incorrectType = hoek.reach(result.template, chain);
 
             assert.strictEqual(result.errors[1].message, '"image" must be a string');
             assert.isNumber(incorrectType);
