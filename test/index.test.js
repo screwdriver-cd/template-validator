@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('chai').assert;
+const { assert } = require('chai');
 const fs = require('fs');
 const hoek = require('hoek');
 const path = require('path');
@@ -13,26 +13,57 @@ describe('index test', () => {
     let validator;
 
     beforeEach(() => {
-        /* eslint-disable global-require */
+        // eslint-disable-next-line global-require
         validator = require('../index');
-        /* eslint-enable global-require */
     });
 
     it('parses a valid yaml', () => {
         const yamlString = fs.readFileSync(VALID_FULL_TEMPLATE_PATH);
 
         return validator(yamlString)
-        .then((config) => {
-            assert.isObject(config);
+            .then((config) => {
+                assert.isObject(config);
 
-            assert.deepEqual(config, {
-                errors: [],
-                template: {
+                assert.deepEqual(config, {
+                    errors: [],
+                    template: {
+                        config: {
+                            environment: {
+                                KEYNAME: 'value'
+                            },
+                            image: 'image_name:image_tag',
+                            secrets: [
+                                'SECRET_NAME'
+                            ],
+                            steps: [
+                                {
+                                    first_step: 'first_command'
+                                },
+                                {
+                                    second_step: './second_script.sh'
+                                }
+                            ]
+                        },
+                        description: 'template description',
+                        maintainer: 'name@domain.suffix',
+                        name: 'template_namespace/template_name',
+                        version: '1.2.3'
+                    }
+                });
+            });
+    });
+
+    it('validates a poorly structured template', () => {
+        const yamlString = fs.readFileSync(BAD_STRUCTURE_TEMPLATE_PATH);
+
+        return validator(yamlString)
+            .then((result) => {
+                assert.deepEqual(result.template, {
                     config: {
                         environment: {
                             KEYNAME: 'value'
                         },
-                        image: 'image_name:image_tag',
+                        image: 1,
                         secrets: [
                             'SECRET_NAME'
                         ],
@@ -45,65 +76,33 @@ describe('index test', () => {
                             }
                         ]
                     },
-                    description: 'template description',
                     maintainer: 'name@domain.suffix',
                     name: 'template_namespace/template_name',
                     version: '1.2.3'
-                }
-            });
-        });
-    });
+                });
+                assert.strictEqual(result.errors.length, 2);
 
-    it('validates a poorly structured template', () => {
-        const yamlString = fs.readFileSync(BAD_STRUCTURE_TEMPLATE_PATH);
+                // check required description
+                const missingField = hoek.reach(result.template, result.errors[0].path[0]);
 
-        return validator(yamlString)
-        .then((result) => {
-            assert.deepEqual(result.template, {
-                config: {
-                    environment: {
-                        KEYNAME: 'value'
-                    },
-                    image: 1,
-                    secrets: [
-                        'SECRET_NAME'
-                    ],
-                    steps: [
-                        {
-                            first_step: 'first_command'
-                        },
-                        {
-                            second_step: './second_script.sh'
-                        }
-                    ]
-                },
-                maintainer: 'name@domain.suffix',
-                name: 'template_namespace/template_name',
-                version: '1.2.3'
-            });
-            assert.strictEqual(result.errors.length, 2);
+                assert.strictEqual(result.errors[0].message, '"description" is required');
+                assert.isUndefined(missingField);
 
-            // check required description
-            const missingField = hoek.reach(result.template, result.errors[0].path[0]);
+                // check incorrect type
+                const chain = `${result.errors[1].path[0]}.${result.errors[1].path[1]}`;
+                const incorrectType = hoek.reach(result.template, chain);
 
-            assert.strictEqual(result.errors[0].message, '"description" is required');
-            assert.isUndefined(missingField);
-
-            // check incorrect type
-            const chain = `${result.errors[1].path[0]}.${result.errors[1].path[1]}`;
-            const incorrectType = hoek.reach(result.template, chain);
-
-            assert.strictEqual(result.errors[1].message, '"image" must be a string');
-            assert.isNumber(incorrectType);
-        }, assert.fail);
+                assert.strictEqual(result.errors[1].message, '"image" must be a string');
+                assert.isNumber(incorrectType);
+            }, assert.fail);
     });
 
     it('throws when parsing incorrectly formatted yaml', () => {
         const yamlString = 'main: :';
 
         return validator(yamlString)
-        .then(assert.fail, (err) => {
-            assert.match(err, /YAMLException/);
-        });
+            .then(assert.fail, (err) => {
+                assert.match(err, /YAMLException/);
+            });
     });
 });
