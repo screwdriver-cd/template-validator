@@ -1,6 +1,7 @@
 'use strict';
 
-const Joi = require('joi'); const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
+const Joi = require('joi');
+const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
 const Yaml = require('js-yaml');
 
 /**
