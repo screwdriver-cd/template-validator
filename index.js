@@ -38,7 +38,7 @@ function validateTemplate(templateObj) {
 
 /**
  * Parses the configuration from a screwdriver-template.yaml
- * @method parseTemplate
+ * @async  parseTemplate
  * @param  {String} yamlString Contents of screwdriver-template.yaml
  * @return {Promise}           Promise that rejects if the configuration cannot be parsed
  *                             The promise will eventually resolve into:
@@ -47,18 +47,20 @@ function validateTemplate(templateObj) {
  *         {Object[]} result.errors    An array of objects related to validating
  *                                     the given template
  */
-function parseTemplate(yamlString) {
-    return loadTemplate(yamlString)
-    .then(configToValidate =>
-        validateTemplate(configToValidate)
-        .then(templateConfiguration => ({
+async function parseTemplate(yamlString) {
+    const template = await loadTemplate(yamlString);
+
+    try {
+        return {
             errors: [],
-            template: templateConfiguration
-        }), err => ({
+            template: await validateTemplate(template)
+        };
+    } catch (err) {
+        return {
             errors: err.details,
-            template: configToValidate
-        }))
-    );
+            template
+        };
+    }
 }
 
 module.exports = parseTemplate;
