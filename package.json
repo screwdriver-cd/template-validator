@@ -40,7 +40,7 @@
   "dependencies": {
     "joi": "^13.7.0",
     "js-yaml": "^3.12.1",
-    "screwdriver-data-schema": "^18.38.0"
+    "screwdriver-data-schema": "^19.1.1"
   },
   "release": {
     "debug": false,
