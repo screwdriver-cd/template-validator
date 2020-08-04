@@ -1,5 +1,6 @@
 'use strict';
 
+const Joi = require('joi');
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
 const Yaml = require('js-yaml');
 
@@ -9,8 +10,10 @@ const Yaml = require('js-yaml');
  * @param  {String} yamlString Contents of screwdriver-template.yaml
  * @return {Promise}           Promise that resolves to the template as a config object
  */
-async function loadTemplate(yamlString) {
-    return Yaml.safeLoad(yamlString);
+function loadTemplate(yamlString) {
+    return new Promise(resolve =>
+        resolve(Yaml.safeLoad(yamlString))
+    );
 }
 
 /**
@@ -19,16 +22,18 @@ async function loadTemplate(yamlString) {
  * @param  {Object}         templateObj Configuration object that represents the template
  * @return {Promise}                    Promise that resolves to the passed-in config object
  */
-async function validateTemplate(templateObj) {
-    try {
-        const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
+function validateTemplate(templateObj) {
+    return new Promise((resolve, reject) => {
+        Joi.validate(templateObj, SCHEMA_CONFIG, {
             abortEarly: false
-        });
+        }, (err, data) => {
+            if (err) {
+                return reject(err);
+            }
 
-        return data;
-    } catch (err) {
-        throw err;
-    }
+            return resolve(data);
+        });
+    });
 }
 
 /**
@@ -37,32 +42,23 @@ async function validateTemplate(templateObj) {
  * @param  {String}  yamlString Contents of screwdriver-template.yaml
  * @return {Promise}            Promise that rejects if the configuration cannot be parsed
  *                              The promise will eventually resolve into:
- * {Object}   result
- * {Object}   result.template  The parsed template that was validated
- * {Object[]} result.errors    An array of objects related to validating
- *                             the given template
+ *         {Object}   result
+ *         {Object}   result.template  The parsed template that was validated
+ *         {Object[]} result.errors    An array of objects related to validating
+ *                                     the given template
  */
-async function parseTemplate(yamlString) {
-    let configToValidate;
-
-    try {
-        configToValidate = await loadTemplate(yamlString);
-        const templateConfiguration = await validateTemplate(configToValidate);
-
-        return {
-            errors: [],
-            template: templateConfiguration
-        };
-    } catch (err) {
-        if (!err.details) {
-            throw err;
-        }
-
-        return {
-            errors: err.details,
-            template: configToValidate
-        };
-    }
+function parseTemplate(yamlString) {
+    return loadTemplate(yamlString)
+        .then(configToValidate =>
+            validateTemplate(configToValidate)
+                .then(templateConfiguration => ({
+                    errors: [],
+                    template: templateConfiguration
+                }), err => ({
+                    errors: err.details,
+                    template: configToValidate
+                }))
+        );
 }
 
 module.exports = parseTemplate;

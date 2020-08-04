@@ -2,7 +2,7 @@
 
 const { assert } = require('chai');
 const fs = require('fs');
-const hoek = require('@hapi/hoek');
+const hoek = require('hoek');
 const path = require('path');
 
 const TEST_YAML_FOLDER = path.resolve(__dirname, 'data');
@@ -45,7 +45,7 @@ describe('index test', () => {
                             ]
                         },
                         description: 'template description',
-                        maintainer: 'name@domain.org',
+                        maintainer: 'name@domain.suffix',
                         name: 'template_namespace/template_name',
                         version: '1.2.3'
                     }
@@ -76,7 +76,7 @@ describe('index test', () => {
                             }
                         ]
                     },
-                    maintainer: 'name@domain.com',
+                    maintainer: 'name@domain.suffix',
                     name: 'template_namespace/template_name',
                     version: '1.2.3'
                 });
@@ -92,7 +92,7 @@ describe('index test', () => {
                 const chain = `${result.errors[1].path[0]}.${result.errors[1].path[1]}`;
                 const incorrectType = hoek.reach(result.template, chain);
 
-                assert.strictEqual(result.errors[1].message, '"config.image" must be a string');
+                assert.strictEqual(result.errors[1].message, '"image" must be a string');
                 assert.isNumber(incorrectType);
             }, assert.fail);
     });
