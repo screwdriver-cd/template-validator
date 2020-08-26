@@ -1,6 +1,6 @@
 {
   "name": "screwdriver-template-validator",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "description": "A module for validating a Screwdriver Template file",
   "main": "index.js",
   "scripts": {
@@ -40,7 +40,7 @@
   "dependencies": {
     "joi": "^17.1.1",
     "js-yaml": "^3.12.1",
-    "screwdriver-data-schema": "git://github.com/screwdriver-cd/data-schema.git#hapi-v19"
+    "screwdriver-data-schema": "^20.0.0"
   },
   "release": {
     "debug": false,
