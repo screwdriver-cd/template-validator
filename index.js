@@ -41,7 +41,7 @@ async function validateTemplate(templateObj) {
  */
 async function flattenTemplate(templateObj, templateFactory) {
     // If template is specified, then merge
-    if (templateObj.config.template) {
+    if (templateObj.config.template && templateFactory) {
         const { childJobConfig, parentTemplateImages } = await helper.mergeTemplateIntoJob(
             templateObj, templateFactory
         );
