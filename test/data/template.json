@@ -1,0 +1,30 @@
+{
+    "id": 7754,
+    "namespace": "template_namespace",
+    "name": "parent",
+    "version": "1.2.3",
+    "description": "test template",
+    "maintainer": "bar@foo.com",
+    "labels": [],
+    "images": {
+        "stable-image": "node:8",
+        "latest-image": "node:12"
+    },
+    "config": {
+        "image": "node:4",
+        "steps": [
+            { "install": "npm install" },
+            { "test": "npm test" }
+        ],
+        "environment": {
+            "FOO": "from template",
+            "BAR": "foo"
+        },
+        "secrets": [
+            "GIT_KEY"
+        ],
+        "settings": {
+            "email": "foo@example.com"
+        }
+    }
+}
