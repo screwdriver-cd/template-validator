@@ -40,12 +40,14 @@ async function validateTemplate(templateObj) {
  * @return {Promise}            Resolves to new job object after merging template
  */
 async function flattenTemplate(templateObj, templateFactory) {
+    let warnMessages = [];
+
     // If template is specified, then merge
     if (templateObj.config.template && templateFactory) {
-        const { childJobConfig, parentTemplateImages } = await helper.mergeTemplateIntoJob(
-            templateObj, templateFactory
-        );
+        const { childJobConfig, parentTemplateImages, warnings } =
+            await helper.mergeTemplateIntoJob(templateObj, templateFactory);
 
+        warnMessages = warnings;
         templateObj.config = childJobConfig;
 
         // Merge images object; maintainer, version, description, and
@@ -57,7 +59,7 @@ async function flattenTemplate(templateObj, templateFactory) {
         }
     }
 
-    return templateObj;
+    return { flattenedConfig: templateObj, warnMessages };
 }
 
 /**
@@ -79,13 +81,19 @@ async function parseTemplate(yamlString, templateFactory) {
         configToValidate = await loadTemplate(yamlString);
         const validatedConfig = await validateTemplate(configToValidate);
         // Retrieve template and merge into job config
-        const flattenedConfig = await flattenTemplate(
+        const { flattenedConfig, warnMessages } = await flattenTemplate(
             validatedConfig, templateFactory);
 
-        return {
+        const res = {
             errors: [],
             template: flattenedConfig
         };
+
+        if (warnMessages.length > 0) {
+            res.warnMessages = warnMessages;
+        }
+
+        return res;
     } catch (err) {
         if (!err.details) {
             throw err;
