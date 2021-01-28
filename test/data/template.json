@@ -14,7 +14,8 @@
         "image": "node:4",
         "steps": [
             { "install": "npm install" },
-            { "test": "npm test" }
+            { "test": "npm test" },
+            { "teardown-run": "cp -r artifacts/coverage $SD_ARTIFACTS_DIR" }
         ],
         "environment": {
             "FOO": "from template",

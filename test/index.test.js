@@ -9,6 +9,8 @@ const sinon = require('sinon');
 const VALID_FULL_TEMPLATE_PATH = 'valid_full_template.yaml';
 const VALID_PARENT_TEMPLATE_PATH = 'valid_template_with_parent_template.yaml';
 const VALID_TEMPLATE_PATH_WITH_ORDER = 'valid_template_with_order_template.yaml';
+const VALID_TEMPLATE_PATH_WITH_ORDER_AND_WRONG_TEARDOWN =
+    'valid_template_with_order_wrong_teardown_template.yaml';
 const VALID_TEMPLATE_PATH_WITH_ORDER_WARNINGS = 'valid_template_with_order_warnings_template.yaml';
 const BAD_STRUCTURE_TEMPLATE_PATH = 'bad_structure_template.yaml';
 
@@ -113,6 +115,9 @@ describe('index test', () => {
                                     posttest: './second_script.sh'
                                 },
                                 {
+                                    'teardown-run': 'cp -r artifacts/coverage $SD_ARTIFACTS_DIR'
+                                },
+                                {
                                     'teardown-always': 'echo done!'
                                 }
                             ],
@@ -189,6 +194,69 @@ describe('index test', () => {
             })
     );
 
+    it('parses a valid yaml using a parent template with order and wrong teardown', () =>
+        validator(loadData(VALID_TEMPLATE_PATH_WITH_ORDER_AND_WRONG_TEARDOWN), templateFactoryMock)
+            .then((config) => {
+                assert.isObject(config);
+                assert.deepEqual(config, {
+                    errors: [],
+                    template: {
+                        config: {
+                            annotations: {},
+                            environment: {
+                                BAR: 'foo',
+                                FOO: 'from template',
+                                KEYNAME: 'value',
+                                SD_TEMPLATE_FULLNAME: 'template_namespace/parent',
+                                SD_TEMPLATE_NAME: 'parent',
+                                SD_TEMPLATE_NAMESPACE: 'template_namespace',
+                                SD_TEMPLATE_VERSION: '1.2.3'
+                            },
+                            image: 'node:8',
+                            secrets: [
+                                'GIT_KEY',
+                                'SECRET_NAME'
+                            ],
+                            settings: {
+                                email: 'foo@example.com'
+                            },
+                            sourcePaths: [],
+                            steps: [
+                                {
+                                    init: 'echo Starting command'
+                                },
+                                {
+                                    install: './run_script.sh'
+                                },
+                                {
+                                    test: 'npm test'
+                                },
+                                {
+                                    finish: 'echo done!'
+                                },
+                                {
+                                    'teardown-blah': 'echo Should be before teardown-run'
+                                },
+                                {
+                                    'teardown-run': 'cp -r artifacts/coverage $SD_ARTIFACTS_DIR'
+                                }
+                            ],
+                            templateId: 7754
+                        },
+                        description: 'template description',
+                        images: {
+                            'latest-image': 'node:12',
+                            'stable-image': 'node:10',
+                            'test-image': 'node:18'
+                        },
+                        maintainer: 'name@domain.org',
+                        name: 'template_namespace/child',
+                        version: '1.2.3'
+                    }
+                });
+            })
+    );
+
     it('parses a valid yaml using a parent template with order and warnings', () =>
         validator(loadData(VALID_TEMPLATE_PATH_WITH_ORDER_WARNINGS), templateFactoryMock)
             .then((config) => {
@@ -242,12 +310,10 @@ describe('index test', () => {
                         name: 'template_namespace/child',
                         version: '1.2.3'
                     },
-                    /* eslint-disable max-len */
                     warnMessages: [
-                        'blah step in cannot be found in current template or template_namespace/parent@1 template; skipping',
-                        'meow step in cannot be found in current template or template_namespace/parent@1 template; skipping'
+                        'blah step definition not found; skipping',
+                        'meow step definition not found; skipping'
                     ]
-                    /* eslint-enable max-len */
                 });
             })
     );
