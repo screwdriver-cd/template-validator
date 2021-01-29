@@ -1,7 +1,7 @@
 # Template Validator
 [![Version][npm-image]][npm-url] ![Downloads][downloads-image] [![Build Status][status-image]][status-url] [![Open Issues][issues-image]][issues-url] ![License][license-image]
 
-> A module for validating a Screwdriver Template file
+> A module for validating and parsing a Screwdriver Template file
 
 ## yaml
 

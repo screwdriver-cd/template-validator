@@ -2,6 +2,7 @@
 
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
 const Yaml = require('js-yaml');
+const helper = require('./lib/helper.js');
 
 /**
  * Loads the configuration from a stringified screwdriver-template.yaml
@@ -32,9 +33,40 @@ async function validateTemplate(templateObj) {
 }
 
 /**
+ * If template is specified, merge into job config
+ * @method flattenTemplate
+ * @param  {Object} templateObj Template config after validation
+ * @param  {TemplateFactory}  templateFactory   Template Factory to get template from
+ * @return {Promise}            Resolves to new job object after merging template
+ */
+async function flattenTemplate(templateObj, templateFactory) {
+    let warnMessages = [];
+
+    // If template is specified, then merge
+    if (templateObj.config.template && templateFactory) {
+        const { childJobConfig, parentTemplateImages, warnings } =
+            await helper.mergeTemplateIntoJob(templateObj, templateFactory);
+
+        warnMessages = warnings;
+        templateObj.config = childJobConfig;
+
+        // Merge images object; maintainer, version, description, and
+        // template name will not be merged
+        if (typeof parentTemplateImages !== 'undefined') {
+            templateObj.images = templateObj.images ?
+                Object.assign(parentTemplateImages, templateObj.images || {}) :
+                parentTemplateImages;
+        }
+    }
+
+    return { flattenedConfig: templateObj, warnMessages };
+}
+
+/**
  * Parses the configuration from a screwdriver-template.yaml
  * @method parseTemplate
- * @param  {String}  yamlString Contents of screwdriver-template.yaml
+ * @param  {String}             yamlString      Contents of screwdriver-template.yaml
+ * @param  {TemplateFactory}    templateFactory Template Factory to get template from
  * @return {Promise}            Promise that rejects if the configuration cannot be parsed
  *                              The promise will eventually resolve into:
  * {Object}   result
@@ -42,17 +74,26 @@ async function validateTemplate(templateObj) {
  * {Object[]} result.errors    An array of objects related to validating
  *                             the given template
  */
-async function parseTemplate(yamlString) {
+async function parseTemplate(yamlString, templateFactory) {
     let configToValidate;
 
     try {
         configToValidate = await loadTemplate(yamlString);
-        const templateConfiguration = await validateTemplate(configToValidate);
+        const validatedConfig = await validateTemplate(configToValidate);
+        // Retrieve template and merge into job config
+        const { flattenedConfig, warnMessages } = await flattenTemplate(
+            validatedConfig, templateFactory);
 
-        return {
+        const res = {
             errors: [],
-            template: templateConfiguration
+            template: flattenedConfig
         };
+
+        if (warnMessages.length > 0) {
+            res.warnMessages = warnMessages;
+        }
+
+        return res;
     } catch (err) {
         if (!err.details) {
             throw err;
