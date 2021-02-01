@@ -92,7 +92,7 @@ describe('index test', () => {
                                 SD_TEMPLATE_NAMESPACE: 'template_namespace',
                                 SD_TEMPLATE_VERSION: '1.2.3'
                             },
-                            image: 'node:8',
+                            image: 'node:10',
                             secrets: [
                                 'GIT_KEY',
                                 'SECRET_NAME'
@@ -183,7 +183,7 @@ describe('index test', () => {
                         description: 'template description',
                         images: {
                             'latest-image': 'node:12',
-                            'stable-image': 'node:10',
+                            'stable-image': 'node:8',
                             'test-image': 'node:18'
                         },
                         maintainer: 'name@domain.org',
@@ -246,8 +246,7 @@ describe('index test', () => {
                         description: 'template description',
                         images: {
                             'latest-image': 'node:12',
-                            'stable-image': 'node:10',
-                            'test-image': 'node:18'
+                            'stable-image': 'node:8'
                         },
                         maintainer: 'name@domain.org',
                         name: 'template_namespace/child',
@@ -303,7 +302,7 @@ describe('index test', () => {
                         description: 'template description',
                         images: {
                             'latest-image': 'node:12',
-                            'stable-image': 'node:10',
+                            'stable-image': 'node:8',
                             'test-image': 'node:18'
                         },
                         maintainer: 'name@domain.org',

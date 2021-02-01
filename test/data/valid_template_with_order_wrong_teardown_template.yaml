@@ -2,9 +2,6 @@ name: template_namespace/child
 version: 1.2.3
 description: template description
 maintainer: name@domain.org
-images:
-    test-image: node:18
-    stable-image: node:10
 config:
   template: template_namespace/parent@1
   image: stable-image

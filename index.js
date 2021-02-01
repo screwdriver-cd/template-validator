@@ -50,12 +50,18 @@ async function flattenTemplate(templateObj, templateFactory) {
         warnMessages = warnings;
         templateObj.config = childJobConfig;
 
-        // Merge images object; maintainer, version, description, and
-        // template name will not be merged
+        // Merge images object
         if (typeof parentTemplateImages !== 'undefined') {
             templateObj.images = templateObj.images ?
                 Object.assign(parentTemplateImages, templateObj.images || {}) :
                 parentTemplateImages;
+        }
+
+        // If template.images contains a label match for the image defined in the job
+        // set the job image to the respective template image
+        if (typeof templateObj.images !== 'undefined'
+            && typeof templateObj.images[childJobConfig.image] !== 'undefined') {
+            childJobConfig.image = templateObj.images[childJobConfig.image];
         }
     }
 
