@@ -1,0 +1,35 @@
+{
+    "errors": [],
+    "template": {
+        "config": {
+            "environment": {
+                "KEYNAME": "value"
+            },
+            "image": "test-image",
+            "secrets": [
+                "SECRET_NAME"
+            ],
+            "steps": [
+                {
+                    "init": "echo Starting command"
+                },
+                {
+                    "install": "./run_script.sh"
+                },
+                {
+                    "finish": "echo done!"
+                }
+            ]
+        },
+        "description": "template description",
+        "images": {
+            "test-image": "node:18"
+        },
+        "maintainer": "name@domain.org",
+        "name": "template_namespace/child",
+        "version": "1.2.3"
+    },
+    "warnMessages": [
+        "\"order\" in template config cannot be used without \"template\""
+    ]
+}

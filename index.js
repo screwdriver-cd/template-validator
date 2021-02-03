@@ -16,11 +16,11 @@ async function loadTemplate(yamlString) {
 
 /**
  * Validate the template configuration
- * @method validateTemplate
+ * @method validateTemplateStructure
  * @param  {Object}         templateObj Configuration object that represents the template
  * @return {Promise}                    Promise that resolves to the passed-in config object
  */
-async function validateTemplate(templateObj) {
+async function validateTemplateStructure(templateObj) {
     try {
         const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
             abortEarly: false
@@ -33,11 +33,34 @@ async function validateTemplate(templateObj) {
 }
 
 /**
+ * Check that "order" is only used with "template"
+ * Deletes "order" field if "template" not defined
+ * @method validateOrderAndTemplate
+ * @param  {Object}           config            Template job config
+ * @return {Array}                              List of warnings
+ */
+function validateOrderAndTemplate(config) {
+    let warnings = [];
+
+    const order = config.config.order || [];
+    const template = config.config.template;
+
+    if (order.length > 0 && template === undefined) {
+        warnings = warnings.concat(
+            '"order" in template config cannot be used without "template"'
+        );
+        delete config.config.order;
+    }
+
+    return warnings;
+}
+
+/**
  * If template is specified, merge into job config
  * @method flattenTemplate
- * @param  {Object} templateObj Template config after validation
- * @param  {TemplateFactory}  templateFactory   Template Factory to get template from
- * @return {Promise}            Resolves to new job object after merging template
+ * @param  {Object}             templateObj         Template config after validation
+ * @param  {TemplateFactory}    templateFactory     Template Factory to get template from
+ * @return {Promise}            Resolves to new job object after merging template, warn messages
  */
 async function flattenTemplate(templateObj, templateFactory) {
     let warnMessages = [];
@@ -85,15 +108,18 @@ async function parseTemplate(yamlString, templateFactory) {
 
     try {
         configToValidate = await loadTemplate(yamlString);
-        const validatedConfig = await validateTemplate(configToValidate);
-        // Retrieve template and merge into job config
-        const { flattenedConfig, warnMessages } = await flattenTemplate(
-            validatedConfig, templateFactory);
+        const config = await validateTemplateStructure(configToValidate);
+        let warnMessages = [].concat(validateOrderAndTemplate(config));
 
+        // Retrieve template and merge into job config
+        const { flattenedConfig, warnMessages: flattenWarnings } = await flattenTemplate(
+            config, templateFactory);
         const res = {
             errors: [],
             template: flattenedConfig
         };
+
+        warnMessages = warnMessages.concat(flattenWarnings);
 
         if (warnMessages.length > 0) {
             res.warnMessages = warnMessages;
