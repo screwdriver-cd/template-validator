@@ -7,12 +7,16 @@ const path = require('path');
 const sinon = require('sinon');
 
 const VALID_FULL_TEMPLATE_PATH = 'valid_full_template.yaml';
+const VALID_EXTENDED_STEPS_TEMPLATE_PATH = 'valid_extended_steps_template.yaml';
 const VALID_PARENT_TEMPLATE_PATH = 'valid_parent_template.yaml';
+const VALID_PARENT_LOCKED_TEMPLATE_PATH = 'valid_parent_and_locked_step_template.yaml';
 const VALID_ORDER_TEMPLATE_PATH = 'valid_order_template.yaml';
 const INVALID_ORDER_TEMPLATE_PATH = 'invalid_order_template.yaml';
 const VALID_ORDER_WRONG_TEARDOWN_TEMPLATE_PATH = 'valid_order_and_wrong_teardown_template.yaml';
 const VALID_ORDER_WITH_WARNINGS_PATH = 'valid_order_and_warnings_template.yaml';
+const VALID_ORDER_WITH_LOCKED_STEP_PATH = 'valid_order_and_locked_step_template.yaml';
 const BAD_STRUCTURE_TEMPLATE_PATH = 'bad_structure_template.yaml';
+const BAD_ORDER_TEMPLATE_PATH = 'bad_order_missing_locked_step_template.yaml';
 
 /**
  * Load sample data from disk
@@ -31,12 +35,13 @@ describe('index test', () => {
     };
     let validator;
     let template;
+    let templateLockedStep;
 
     beforeEach(() => {
         template = JSON.parse(loadData('template.json'));
+        templateLockedStep = JSON.parse(loadData('template_locked_step.json'));
 
-        templateFactoryMock.getTemplate
-            .resolves(template);
+        templateFactoryMock.getTemplate.resolves(template);
         // eslint-disable-next-line global-require
         validator = require('../index');
     });
@@ -48,6 +53,26 @@ describe('index test', () => {
                 assert.deepEqual(config, JSON.parse(loadData('valid_full_template.json')));
             })
     );
+
+    it('parses a valid yaml wtih extended steps', () =>
+        validator(loadData(VALID_EXTENDED_STEPS_TEMPLATE_PATH), templateFactoryMock)
+            .then((config) => {
+                assert.isObject(config);
+                assert.deepEqual(config, JSON.parse(loadData(
+                    'valid_extended_steps_template.json')));
+            })
+    );
+
+    it('parses a valid yaml using a parent template with locked step', () => {
+        templateFactoryMock.getTemplate.resolves(templateLockedStep);
+
+        return validator(loadData(VALID_PARENT_LOCKED_TEMPLATE_PATH), templateFactoryMock)
+            .then((config) => {
+                assert.isObject(config);
+                assert.deepEqual(config,
+                    JSON.parse(loadData('valid_parent_and_locked_step_template.json')));
+            });
+    });
 
     it('parses a valid yaml using a parent template', () =>
         validator(loadData(VALID_PARENT_TEMPLATE_PATH), templateFactoryMock)
@@ -91,12 +116,33 @@ describe('index test', () => {
             })
     );
 
+    it('parses a valid yaml using a parent template with order and locked step', () => {
+        templateFactoryMock.getTemplate.resolves(templateLockedStep);
+
+        return validator(loadData(VALID_ORDER_WITH_LOCKED_STEP_PATH), templateFactoryMock)
+            .then((config) => {
+                assert.isObject(config);
+                assert.deepEqual(config,
+                    JSON.parse(loadData('valid_order_and_locked_step_template.json')));
+            });
+    });
+
     it('throws when template does not exist', () => {
         templateFactoryMock.getTemplate.resolves(null);
 
         return validator(loadData(VALID_PARENT_TEMPLATE_PATH), templateFactoryMock)
             .then(assert.fail, (err) => {
                 assert.match(err, /Template template_namespace\/parent@1 does not exist/);
+            });
+    });
+
+    it('throws when order does not contain locked steps', () => {
+        templateFactoryMock.getTemplate.resolves(templateLockedStep);
+
+        return validator(loadData(BAD_ORDER_TEMPLATE_PATH), templateFactoryMock)
+            .then(assert.fail, (err) => {
+                // eslint-disable-next-line max-len
+                assert.match(err, /Order must contain template template_namespace\/parent@1 locked steps: security/);
             });
     });
 

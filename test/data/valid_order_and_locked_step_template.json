@@ -1,0 +1,60 @@
+{
+    "errors": [],
+    "template": {
+        "config": {
+            "annotations": {},
+            "environment": {
+                "BAR": "foo",
+                "FOO": "from template",
+                "KEYNAME": "value",
+                "SD_TEMPLATE_FULLNAME": "template_namespace/parent",
+                "SD_TEMPLATE_NAME": "parent",
+                "SD_TEMPLATE_NAMESPACE": "template_namespace",
+                "SD_TEMPLATE_VERSION": "1.2.3"
+            },
+            "image": "node:8",
+            "secrets": [
+                "GIT_KEY",
+                "SECRET_NAME"
+            ],
+            "settings": {
+                "email": "foo@example.com"
+            },
+            "sourcePaths": [],
+            "steps": [
+                {
+                    "init": {
+                        "command": "echo Starting command",
+                        "locked": true
+                    }
+                },
+                {
+                    "security": {
+                        "command": "npm scan",
+                        "locked": true
+                    }
+                },
+                {
+                    "test": "npm test"
+                },
+                {
+                    "finish": "echo done!"
+                }
+            ],
+            "templateId": 7754
+        },
+        "description": "template description",
+        "images": {
+            "latest-image": "node:12",
+            "stable-image": "node:8",
+            "test-image": "node:18"
+        },
+        "maintainer": "name@domain.org",
+        "name": "template_namespace/child",
+        "version": "1.2.3"
+    },
+    "warnMessages": [
+        "blah step definition not found; skipping",
+        "meow step definition not found; skipping"
+    ]
+}

@@ -96,7 +96,7 @@ async function parseTemplate(yamlString, templateFactory) {
     try {
         configToValidate = await loadTemplate(yamlString);
         const config = await validateTemplateStructure(configToValidate);
-        // Retrieve template and merge into job config
+        // Retrieve parent template and merge into job config
         const { flattenedConfig, warnMessages } = await flattenTemplate(
             config, templateFactory);
         const res = {
