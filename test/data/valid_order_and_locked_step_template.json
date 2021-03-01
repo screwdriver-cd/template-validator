@@ -54,6 +54,7 @@
         "version": "1.2.3"
     },
     "warnMessages": [
+        "Cannot override locked step security; using step definition from template template_namespace/parent@1",
         "blah step definition not found; skipping",
         "meow step definition not found; skipping"
     ]
