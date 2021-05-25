@@ -11,6 +11,7 @@ const VALID_EXTENDED_STEPS_TEMPLATE_PATH = 'valid_extended_steps_template.yaml';
 const VALID_PARENT_TEMPLATE_PATH = 'valid_parent_template.yaml';
 const VALID_PARENT_LOCKED_TEMPLATE_PATH = 'valid_parent_and_locked_step_template.yaml';
 const VALID_ORDER_TEMPLATE_PATH = 'valid_order_template.yaml';
+const VALID_ORDER_NO_STEPS_TEMPLATE_PATH = 'valid_order_no_steps_template.yaml';
 const INVALID_ORDER_TEMPLATE_PATH = 'invalid_order_template.yaml';
 const VALID_ORDER_WRONG_TEARDOWN_TEMPLATE_PATH = 'valid_order_and_wrong_teardown_template.yaml';
 const VALID_ORDER_WITH_WARNINGS_PATH = 'valid_order_and_warnings_template.yaml';
@@ -87,6 +88,15 @@ describe('index test', () => {
             .then((config) => {
                 assert.isObject(config);
                 assert.deepEqual(config, JSON.parse(loadData('valid_order_template.json')));
+            })
+    );
+
+    it('parses a valid yaml using a parent template with order and no steps defined', () =>
+        validator(loadData(VALID_ORDER_NO_STEPS_TEMPLATE_PATH), templateFactoryMock)
+            .then((config) => {
+                assert.isObject(config);
+                assert.deepEqual(config, JSON.parse(loadData(
+                    'valid_order_no_steps_template.json')));
             })
     );
 
