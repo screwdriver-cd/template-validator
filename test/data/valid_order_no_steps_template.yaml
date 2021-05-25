@@ -1,0 +1,13 @@
+name: template_namespace/child
+version: 1.2.3
+description: template description
+maintainer: name@domain.org
+config:
+  template: template_namespace/parent@1
+  order:
+    - install
+    - test
+  environment:
+    KEYNAME: value
+  secrets:
+    - SECRET_NAME
