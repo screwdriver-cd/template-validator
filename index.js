@@ -21,15 +21,11 @@ async function loadTemplate(yamlString) {
  * @return {Promise}                    Promise that resolves to the passed-in config object
  */
 async function validateTemplateStructure(templateObj) {
-    try {
-        const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
-            abortEarly: false
-        });
+    const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
+        abortEarly: false
+    });
 
-        return data;
-    } catch (err) {
-        throw err;
-    }
+    return data;
 }
 
 /**
@@ -41,36 +37,38 @@ async function validateTemplateStructure(templateObj) {
  */
 async function flattenTemplate(templateObj, templateFactory) {
     const order = templateObj.config.order || [];
-    const template = templateObj.config.template;
+    const { template } = templateObj.config;
     let warnMessages = [];
 
     // Validate order is used with template
     if (order.length > 0 && template === undefined) {
-        warnMessages = warnMessages.concat(
-            '"order" in template config cannot be used without "template"'
-        );
+        warnMessages = warnMessages.concat('"order" in template config cannot be used without "template"');
         delete templateObj.config.order;
     }
 
     // If template is specified, then merge
     if (template && templateFactory) {
-        const { childJobConfig, parentTemplateImages, warnings } =
-            await helper.mergeTemplateIntoJob(templateObj, templateFactory);
+        const { childJobConfig, parentTemplateImages, warnings } = await helper.mergeTemplateIntoJob(
+            templateObj,
+            templateFactory
+        );
 
         warnMessages = warnMessages.concat(warnings);
         templateObj.config = childJobConfig;
 
         // Merge images object
         if (typeof parentTemplateImages !== 'undefined') {
-            templateObj.images = templateObj.images ?
-                Object.assign(parentTemplateImages, templateObj.images || {}) :
-                parentTemplateImages;
+            templateObj.images = templateObj.images
+                ? Object.assign(parentTemplateImages, templateObj.images || {})
+                : parentTemplateImages;
         }
 
         // If template.images contains a label match for the image defined in the job
         // set the job image to the respective template image
-        if (typeof templateObj.images !== 'undefined'
-            && typeof templateObj.images[childJobConfig.image] !== 'undefined') {
+        if (
+            typeof templateObj.images !== 'undefined' &&
+            typeof templateObj.images[childJobConfig.image] !== 'undefined'
+        ) {
             childJobConfig.image = templateObj.images[childJobConfig.image];
         }
     }
@@ -97,8 +95,7 @@ async function parseTemplate(yamlString, templateFactory) {
         configToValidate = await loadTemplate(yamlString);
         const config = await validateTemplateStructure(configToValidate);
         // Retrieve parent template and merge into job config
-        const { flattenedConfig, warnMessages } = await flattenTemplate(
-            config, templateFactory);
+        const { flattenedConfig, warnMessages } = await flattenTemplate(config, templateFactory);
         const res = {
             errors: [],
             template: flattenedConfig
