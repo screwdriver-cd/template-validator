@@ -11,7 +11,7 @@ const helper = require('./lib/helper');
  * @return {Promise}           Promise that resolves to the template as a config object
  */
 async function loadTemplate(yamlString) {
-    return Yaml.safeLoad(yamlString);
+    return Yaml.load(yamlString);
 }
 
 /**

@@ -1,16 +1,15 @@
 {
   "name": "screwdriver-template-validator",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "A module for validating a Screwdriver Template file",
   "main": "index.js",
   "scripts": {
     "pretest": "eslint .",
-    "test": "nyc --report-dir ./artifacts/coverage --reporter=lcov mocha --reporter mocha-multi-reporters --reporter-options configFile=./mocha.config.json --recursive --timeout 4000 --retries 1 --exit --allow-uncaught true --color true",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "test": "nyc --report-dir ./artifacts/coverage --reporter=lcov mocha --reporter mocha-multi-reporters --reporter-options configFile=./mocha.config.json --recursive --timeout 4000 --retries 1 --exit --allow-uncaught true --color true"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:screwdriver-cd/template-validator.git"
+    "url": "git+https://github.com/screwdriver-cd/template-validator.git"
   },
   "homepage": "https://github.com/screwdriver-cd/template-validator",
   "bugs": "https://github.com/screwdriver-cd/screwdriver/issues",
@@ -31,25 +30,22 @@
     "Tiffany Kyi <tiffanykyi@gmail.com>"
   ],
   "devDependencies": {
-    "chai": "^4.3.4",
-    "eslint": "^7.5.0",
-    "eslint-config-screwdriver": "^5.0.1",
-    "mocha": "^8.4.0",
+    "chai": "^4.3.7",
+    "eslint": "^8.28.0",
+    "eslint-config-screwdriver": "^7.0.0",
+    "mocha": "^10.1.0",
     "mocha-multi-reporters": "^1.5.1",
     "mocha-sonarqube-reporter": "^1.0.2",
-    "nyc": "^15.0.0",
-    "sinon": "^9.2.4"
+    "nyc": "^15.1.0",
+    "sinon": "^15.0.0"
   },
   "dependencies": {
-    "@hapi/hoek": "^9.2.0",
-    "joi": "^17.4.0",
-    "js-yaml": "^3.12.1",
-    "screwdriver-data-schema": "^21.3.0"
+    "@hapi/hoek": "^10.0.1",
+    "joi": "^17.7.0",
+    "js-yaml": "^4.1.0",
+    "screwdriver-data-schema": "^22.0.1"
   },
   "release": {
-    "debug": false,
-    "verifyConditions": {
-      "path": "./node_modules/semantic-release/src/lib/plugin-noop.js"
-    }
+    "debug": false
   }
 }
