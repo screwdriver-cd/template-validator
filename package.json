@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:screwdriver-cd/template-validator.git"
+    "url": "git+https://github.com/screwdriver-cd/template-validator.git"
   },
   "homepage": "https://github.com/screwdriver-cd/template-validator",
   "bugs": "https://github.com/screwdriver-cd/screwdriver/issues",
