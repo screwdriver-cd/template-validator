@@ -4,6 +4,7 @@ const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.templat
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
 
+
 /**
  * Loads the configuration from a stringified screwdriver-template.yaml
  * @method loadTemplate
