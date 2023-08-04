@@ -1,9 +1,9 @@
 'use strict';
 
-const { assert } = require('chai');
 const fs = require('fs');
-const hoek = require('@hapi/hoek');
 const path = require('path');
+const { assert } = require('chai');
+const hoek = require('@hapi/hoek');
 const sinon = require('sinon');
 
 const VALID_FULL_TEMPLATE_PATH = 'valid_full_template.yaml';

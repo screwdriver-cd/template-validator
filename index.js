@@ -1,6 +1,7 @@
 'use strict';
 
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
+const SCHEMA_PIPELINE_CONFIG = require('screwdriver-data-schema').config.pipelineTemplate.template;
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
 
@@ -22,6 +23,15 @@ async function loadTemplate(yamlString) {
  */
 async function validateTemplateStructure(templateObj) {
     const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
+        abortEarly: false
+    });
+
+    return data;
+}
+
+// eslint-disable-next-line require-jsdoc
+async function validatePipelineTemplateStructure(templateObj) {
+    const data = await SCHEMA_PIPELINE_CONFIG.validateAsync(templateObj, {
         abortEarly: false
     });
 
@@ -118,4 +128,31 @@ async function parseTemplate(yamlString, templateFactory) {
     }
 }
 
-module.exports = parseTemplate;
+// eslint-disable-next-line require-jsdoc
+async function parsePipelineTemplate(yamlString) {
+    let configToValidate;
+
+    try {
+        configToValidate = await loadTemplate(yamlString);
+        const config = await validatePipelineTemplateStructure(configToValidate);
+
+        return {
+            errors: [],
+            template: config
+        };
+    } catch (err) {
+        if (!err.details) {
+            throw err;
+        }
+
+        return {
+            errors: err.details,
+            template: configToValidate
+        };
+    }
+}
+
+module.exports = {
+    parseTemplate: parseTemplate(),
+    parsePipelineTemplate: parsePipelineTemplate()
+};
