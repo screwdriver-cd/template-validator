@@ -1,7 +1,7 @@
 'use strict';
 
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
-const SCHEMA_PIPELINE_CONFIG = require('screwdriver-data-schema').config.pipelineTemplate.template;
+const SCHEMA_PIPELINE_TEMPLATE = require('screwdriver-data-schema').config.pipelineTemplate.template;
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
 
@@ -21,17 +21,10 @@ async function loadTemplate(yamlString) {
  * @param  {Object}         templateObj Configuration object that represents the template
  * @return {Promise}                    Promise that resolves to the passed-in config object
  */
-async function validateTemplateStructure(templateObj) {
-    const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
-        abortEarly: false
-    });
-
-    return data;
-}
 
 // eslint-disable-next-line require-jsdoc
-async function validatePipelineTemplateStructure(templateObj) {
-    const data = await SCHEMA_PIPELINE_CONFIG.validateAsync(templateObj, {
+async function validateTemplateStructure(templateObj, schema) {
+    const data = await schema.validateAsync(templateObj, {
         abortEarly: false
     });
 
@@ -89,8 +82,6 @@ async function flattenTemplate(templateObj, templateFactory) {
 /**
  * Parses the configuration from a screwdriver-template.yaml
  * @method parseTemplate
- * @param  {String}             yamlString      Contents of screwdriver-template.yaml
- * @param  {TemplateFactory}    templateFactory Template Factory to get template from
  * @return {Promise}            Promise that rejects if the configuration cannot be parsed
  *                              The promise will eventually resolve into:
  * {Object}   result
@@ -98,12 +89,12 @@ async function flattenTemplate(templateObj, templateFactory) {
  * {Object[]} result.errors    An array of objects related to validating
  *                             the given template
  */
-async function parseTemplate(yamlString, templateFactory) {
+async function parseJobTemplate(yamlString, templateFactory) {
     let configToValidate;
 
     try {
         configToValidate = await loadTemplate(yamlString);
-        const config = await validateTemplateStructure(configToValidate);
+        const config = await validateTemplateStructure(configToValidate, SCHEMA_CONFIG);
         // Retrieve parent template and merge into job config
         const { flattenedConfig, warnMessages } = await flattenTemplate(config, templateFactory);
         const res = {
@@ -128,13 +119,17 @@ async function parseTemplate(yamlString, templateFactory) {
     }
 }
 
-// eslint-disable-next-line require-jsdoc
+/**
+ *
+ * @param yamlString
+ * @returns {Promise<{template, errors: any}|{template: *, errors: *[]}>}
+ */
 async function parsePipelineTemplate(yamlString) {
     let configToValidate;
 
     try {
         configToValidate = await loadTemplate(yamlString);
-        const config = await validatePipelineTemplateStructure(configToValidate);
+        const config = await validateTemplateStructure(configToValidate, SCHEMA_PIPELINE_TEMPLATE);
 
         return {
             errors: [],
@@ -153,6 +148,6 @@ async function parsePipelineTemplate(yamlString) {
 }
 
 module.exports = {
-    parseTemplate: parseTemplate(),
-    parsePipelineTemplate: parsePipelineTemplate()
+    parseJobTemplate,
+    parsePipelineTemplate
 };
