@@ -1,0 +1,32 @@
+{
+  "namespace": "template_namespace",
+  "name": "template_name",
+  "version": "1.2.3",
+  "maintainer": "name@domain.org",
+  "config": {
+    "jobs": {
+      "main": {
+        "steps": [
+          {
+            "init": "npm install"
+          },
+          {
+            "test": "npm test"
+          }
+        ]
+      }
+    },
+    "shared": {
+      "image": 1,
+      "environment": {
+        "FOO": "bar"
+      }
+    },
+    "parameters": {
+      "user": {
+        "value": "sd-bot",
+        "description": "User running build"
+      }
+    }
+  }
+}
