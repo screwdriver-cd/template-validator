@@ -162,9 +162,6 @@ describe('index test', () => {
 
     describe('parse pipeline template', () => {
         beforeEach(() => {
-            template = JSON.parse(loadData('template.json'));
-            templateLockedStep = JSON.parse(loadData('template_locked_step.json'));
-
             // eslint-disable-next-line global-require
             validator = require('../index').parsePipelineTemplate;
         });
