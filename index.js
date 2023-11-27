@@ -122,7 +122,7 @@ async function parseJobTemplate(yamlString, templateFactory) {
 
 /**
  * Parses the pipeline configuration from a screwdriver-template.yaml
- * @method parseTemplate
+ * @method parsePipelineTemplate
  * @param  {String}             yamlString      Contents of screwdriver-template.yaml
  * @return {Promise}            Promise that rejects if the configuration cannot be parsed
  *                              The promise will eventually resolve into:
