@@ -1,6 +1,6 @@
 {
   "name": "screwdriver-template-validator",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "A module for validating a Screwdriver Template file",
   "main": "index.js",
   "scripts": {

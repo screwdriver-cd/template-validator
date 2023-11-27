@@ -1,6 +1,7 @@
 'use strict';
 
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
+const SCHEMA_PIPELINE_TEMPLATE = require('screwdriver-data-schema').config.pipelineTemplate.template;
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
 
@@ -18,10 +19,11 @@ async function loadTemplate(yamlString) {
  * Validate the template configuration
  * @method validateTemplateStructure
  * @param  {Object}         templateObj Configuration object that represents the template
+ * @param  {Object}         schema      Dateschema for template validation
  * @return {Promise}                    Promise that resolves to the passed-in config object
  */
-async function validateTemplateStructure(templateObj) {
-    const data = await SCHEMA_CONFIG.validateAsync(templateObj, {
+async function validateTemplateStructure(templateObj, schema) {
+    const data = await schema.validateAsync(templateObj, {
         abortEarly: false
     });
 
@@ -77,7 +79,7 @@ async function flattenTemplate(templateObj, templateFactory) {
 }
 
 /**
- * Parses the configuration from a screwdriver-template.yaml
+ * Parses the job configuration from a screwdriver-template.yaml
  * @method parseTemplate
  * @param  {String}             yamlString      Contents of screwdriver-template.yaml
  * @param  {TemplateFactory}    templateFactory Template Factory to get template from
@@ -88,12 +90,12 @@ async function flattenTemplate(templateObj, templateFactory) {
  * {Object[]} result.errors    An array of objects related to validating
  *                             the given template
  */
-async function parseTemplate(yamlString, templateFactory) {
+async function parseJobTemplate(yamlString, templateFactory) {
     let configToValidate;
 
     try {
         configToValidate = await loadTemplate(yamlString);
-        const config = await validateTemplateStructure(configToValidate);
+        const config = await validateTemplateStructure(configToValidate, SCHEMA_CONFIG);
         // Retrieve parent template and merge into job config
         const { flattenedConfig, warnMessages } = await flattenTemplate(config, templateFactory);
         const res = {
@@ -118,4 +120,41 @@ async function parseTemplate(yamlString, templateFactory) {
     }
 }
 
-module.exports = parseTemplate;
+/**
+ * Parses the pipeline configuration from a screwdriver-template.yaml
+ * @method parsePipelineTemplate
+ * @param  {String}             yamlString      Contents of screwdriver-template.yaml
+ * @return {Promise}            Promise that rejects if the configuration cannot be parsed
+ *                              The promise will eventually resolve into:
+ * {Object}   result
+ * {Object}   result.template  The parsed template that was validated
+ * {Object[]} result.errors    An array of objects related to validating
+ *                             the given template
+ */
+async function parsePipelineTemplate(yamlString) {
+    let configToValidate;
+
+    try {
+        configToValidate = await loadTemplate(yamlString);
+        const config = await validateTemplateStructure(configToValidate, SCHEMA_PIPELINE_TEMPLATE);
+
+        return {
+            errors: [],
+            template: config
+        };
+    } catch (err) {
+        if (!err.details) {
+            throw err;
+        }
+
+        return {
+            errors: err.details,
+            template: configToValidate
+        };
+    }
+}
+
+module.exports = {
+    parseJobTemplate,
+    parsePipelineTemplate
+};
