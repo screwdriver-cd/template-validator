@@ -30,7 +30,7 @@
     "Tiffany Kyi <tiffanykyi@gmail.com>"
   ],
   "devDependencies": {
-    "chai": "^4.3.7",
+    "chai": "^4.3.10",
     "eslint": "^8.28.0",
     "eslint-config-screwdriver": "^7.0.0",
     "mocha": "^10.1.0",
