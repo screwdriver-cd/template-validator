@@ -12,10 +12,13 @@
                 "SD_TEMPLATE_NAMESPACE": "template_namespace",
                 "SD_TEMPLATE_VERSION": "1.2.3"
             },
-            "image": "node:10",
+            "image": "node:8",
             "parameters": {
                 "node-version": {
                     "value": "18"
+                },
+                "npm-version": {
+                    "value": "8.0.0"
                 }
             },
             "secrets": [
@@ -28,22 +31,16 @@
             "sourcePaths": [],
             "steps": [
                 {
-                    "preinstall": "echo Starting command"
+                    "init": "echo Starting command"
                 },
                 {
-                    "install": "first_command"
+                    "install": "./run_script.sh"
                 },
                 {
                     "test": "npm test"
                 },
                 {
-                    "posttest": "./second_script.sh"
-                },
-                {
-                    "teardown-run": "cp -r artifacts/coverage $SD_ARTIFACTS_DIR"
-                },
-                {
-                    "teardown-always": "echo done!"
+                    "finish": "echo done!"
                 }
             ],
             "templateId": 7754
@@ -51,11 +48,11 @@
         "description": "template description",
         "images": {
             "latest-image": "node:12",
-            "stable-image": "node:10",
+            "stable-image": "node:8",
             "test-image": "node:18"
         },
         "maintainer": "name@domain.org",
-        "name": "template_namespace/child",
+        "name": "template_namespace/child_with_params",
         "version": "1.2.3"
     }
 }

@@ -5,3 +5,4 @@ npm-debug.log
 .*.swp
 package-lock.json
 .nyc_output/
+.idea/
