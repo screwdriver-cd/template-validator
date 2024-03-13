@@ -1,0 +1,25 @@
+name: template_namespace/child_with_params
+version: 1.2.3
+description: template description
+maintainer: name@domain.org
+images:
+    test-image: node:18
+config:
+  template: template_namespace/parent@1
+  image: stable-image
+  parameters:
+      npm-version:
+          value: "8.0.0"
+  order:
+    - init
+    - install
+    - test
+    - finish
+  steps:
+    - init: echo Starting command
+    - install: ./run_script.sh
+    - finish: echo done!
+  environment:
+    KEYNAME: value
+  secrets:
+     - SECRET_NAME

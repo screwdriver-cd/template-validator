@@ -18,6 +18,7 @@ const VALID_ORDER_WITH_WARNINGS_PATH = 'valid_order_and_warnings_template.yaml';
 const VALID_ORDER_WITH_LOCKED_STEP_PATH = 'valid_order_and_locked_step_template.yaml';
 const BAD_STRUCTURE_TEMPLATE_PATH = 'bad_structure_template.yaml';
 const BAD_ORDER_TEMPLATE_PATH = 'bad_order_missing_locked_step_template.yaml';
+const CHILD_TEMPLATE_WITH_PARAMS = 'child_template_with_params.yaml';
 
 const VALID_FULL_PIPELINE_TEMPLATE_PATH = 'valid_full_pipeline_template.yaml';
 const BAD_STRUCTURE_PIPELINE_TEMPLATE_PATH = 'bad_structure_pipeline_template.yaml';
@@ -157,6 +158,12 @@ describe('index test', () => {
         it('throws when parsing incorrectly formatted yaml', () =>
             validator('main: :', templateFactoryMock).then(assert.fail, err => {
                 assert.match(err, /YAMLException/);
+            }));
+
+        it('composing templates merges parameters as well', () =>
+            validator(loadData(CHILD_TEMPLATE_WITH_PARAMS), templateFactoryMock).then(config => {
+                assert.isObject(config);
+                assert.deepEqual(config, JSON.parse(loadData('child_template_with_params.json')));
             }));
     });
 

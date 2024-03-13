@@ -12,6 +12,11 @@
     },
     "config": {
         "image": "node:4",
+        "parameters": {
+            "node-version": {
+                "value": "18"
+            }
+        },
         "steps": [
             { "install": "npm install" },
             { "test": "npm test" },
