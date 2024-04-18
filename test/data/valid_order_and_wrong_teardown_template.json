@@ -13,6 +13,11 @@
                 "SD_TEMPLATE_VERSION": "1.2.3"
             },
             "image": "node:8",
+            "parameters": {
+                "node-version": {
+                    "value": "18"
+                }
+            },
             "secrets": [
                 "GIT_KEY",
                 "SECRET_NAME"
