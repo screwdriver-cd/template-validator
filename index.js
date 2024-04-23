@@ -1,7 +1,7 @@
 'use strict';
 
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
-const SCHEMA_PIPELINE_TEMPLATE = require('screwdriver-data-schema').config.pipelineTemplate.template;
+const parser = require('screwdriver-config-parser').parsePipelineTemplate;
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
 
@@ -132,11 +132,10 @@ async function parseJobTemplate(yamlString, templateFactory) {
  *                             the given template
  */
 async function parsePipelineTemplate(yamlString) {
-    let configToValidate;
+    const configToValidate = await loadTemplate(yamlString);
 
     try {
-        configToValidate = await loadTemplate(yamlString);
-        const config = await validateTemplateStructure(configToValidate, SCHEMA_PIPELINE_TEMPLATE);
+        const config = await parser({ yaml: yamlString });
 
         return {
             errors: [],

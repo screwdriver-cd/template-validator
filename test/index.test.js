@@ -20,9 +20,6 @@ const BAD_STRUCTURE_TEMPLATE_PATH = 'bad_structure_template.yaml';
 const BAD_ORDER_TEMPLATE_PATH = 'bad_order_missing_locked_step_template.yaml';
 const CHILD_TEMPLATE_WITH_PARAMS = 'child_template_with_params.yaml';
 
-const VALID_FULL_PIPELINE_TEMPLATE_PATH = 'valid_full_pipeline_template.yaml';
-const BAD_STRUCTURE_PIPELINE_TEMPLATE_PATH = 'bad_structure_pipeline_template.yaml';
-
 /**
  * Load sample data from disk
  * @method loadData
@@ -174,13 +171,14 @@ describe('index test', () => {
         });
 
         it('parses a valid yaml', () =>
-            validator(loadData(VALID_FULL_PIPELINE_TEMPLATE_PATH)).then(config => {
+            validator(loadData('valid_full_pipeline_template.yaml')).then(config => {
                 assert.isObject(config);
                 assert.deepEqual(config, JSON.parse(loadData('valid_full_pipeline_template.json')));
             }));
 
         it('validates a poorly structured template', () =>
-            validator(loadData(BAD_STRUCTURE_PIPELINE_TEMPLATE_PATH)).then(result => {
+            validator(loadData('bad_structure_pipeline_template.yaml')).then(result => {
+                console.log(result);
                 assert.deepEqual(result.template, JSON.parse(loadData('bad_structure_pipeline_template.json')));
                 assert.strictEqual(result.errors.length, 2);
 
