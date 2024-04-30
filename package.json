@@ -43,7 +43,8 @@
     "@hapi/hoek": "^10.0.1",
     "joi": "^17.7.0",
     "js-yaml": "^4.1.0",
-    "screwdriver-data-schema": "^23.0.4"
+    "screwdriver-data-schema": "^23.0.4",
+    "screwdriver-config-parser": "^10.0.0"
   },
   "release": {
     "debug": false
