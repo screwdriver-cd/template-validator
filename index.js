@@ -1,7 +1,10 @@
 'use strict';
 
 const SCHEMA_CONFIG = require('screwdriver-data-schema').config.template.template;
-const parser = require('screwdriver-config-parser').parsePipelineTemplate;
+const {
+    parsePipelineTemplate: parseTemplate,
+    validatePipelineTemplate: validateTemplate
+} = require('screwdriver-config-parser');
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
 
@@ -80,7 +83,7 @@ async function flattenTemplate(templateObj, templateFactory) {
 
 /**
  * Parses the job configuration from a screwdriver-template.yaml
- * @method parseTemplate
+ * @method parseJobTemplate
  * @param  {String}             yamlString      Contents of screwdriver-template.yaml
  * @param  {TemplateFactory}    templateFactory Template Factory to get template from
  * @return {Promise}            Promise that rejects if the configuration cannot be parsed
@@ -135,7 +138,41 @@ async function parsePipelineTemplate(yamlString) {
     const configToValidate = await loadTemplate(yamlString);
 
     try {
-        const config = await parser({ yaml: yamlString });
+        const config = await parseTemplate({ yaml: yamlString });
+
+        return {
+            errors: [],
+            template: config
+        };
+    } catch (err) {
+        if (!err.details) {
+            throw err;
+        }
+
+        return {
+            errors: err.details,
+            template: configToValidate
+        };
+    }
+}
+
+/**
+ * Validates the pipeline configuration from a screwdriver-template.yaml
+ * @method validatePipelineTemplate
+ * @param  {String}             yamlString      Contents of screwdriver-template.yaml
+ * @param  {TemplateFactory}    templateFactory     Template Factory to get template from
+ * @return {Promise}            Promise that rejects if the configuration cannot be validated
+ *                              The promise will eventually resolve into:
+ * {Object}   result
+ * {Object}   result.template  The validated template that was validated
+ * {Object[]} result.errors    An array of objects related to validating
+ *                             the given template
+ */
+async function validatePipelineTemplate(yamlString, templateFactory) {
+    const configToValidate = await loadTemplate(yamlString);
+
+    try {
+        const config = await validateTemplate({ yaml: yamlString, templateFactory });
 
         return {
             errors: [],
@@ -155,5 +192,6 @@ async function parsePipelineTemplate(yamlString) {
 
 module.exports = {
     parseJobTemplate,
-    parsePipelineTemplate
+    parsePipelineTemplate,
+    validatePipelineTemplate
 };

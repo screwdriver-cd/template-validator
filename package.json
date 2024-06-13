@@ -1,6 +1,6 @@
 {
   "name": "screwdriver-template-validator",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "description": "A module for validating a Screwdriver Template file",
   "main": "index.js",
   "scripts": {
@@ -43,8 +43,8 @@
     "@hapi/hoek": "^10.0.1",
     "joi": "^17.7.0",
     "js-yaml": "^4.1.0",
-    "screwdriver-data-schema": "^23.0.4",
-    "screwdriver-config-parser": "^10.0.0"
+    "screwdriver-data-schema": "^23.3.2",
+    "screwdriver-config-parser": "^10.2.0"
   },
   "release": {
     "debug": false

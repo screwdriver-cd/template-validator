@@ -176,10 +176,10 @@ describe('index test', () => {
         it('parses a valid yaml', () =>
             validator(loadData(VALID_FULL_PIPELINE_TEMPLATE_PATH)).then(config => {
                 assert.isObject(config);
-                assert.deepEqual(config, JSON.parse(loadData('valid_full_pipeline_template.json')));
+                assert.deepEqual(config, JSON.parse(loadData('valid_full_pipeline_template_parsed.json')));
             }));
 
-        it('validates a poorly structured template', () =>
+        it('parses a poorly structured template', () =>
             validator(loadData(BAD_STRUCTURE_PIPELINE_TEMPLATE_PATH)).then(result => {
                 assert.deepEqual(result.template, JSON.parse(loadData('bad_structure_pipeline_template.json')));
                 assert.strictEqual(result.errors.length, 2);
@@ -199,6 +199,52 @@ describe('index test', () => {
             }, assert.fail));
 
         it('throws when parsing incorrectly formatted yaml', () =>
+            validator('main: :').then(assert.fail, err => {
+                assert.match(err, /YAMLException/);
+            }));
+    });
+
+    describe('validate pipeline template', () => {
+        const templateFactoryMock = {
+            getTemplate: sinon.stub(),
+            getFullNameAndVersion: sinon.stub()
+        };
+
+        beforeEach(() => {
+            template = JSON.parse(loadData('template.json'));
+            templateLockedStep = JSON.parse(loadData('template_locked_step.json'), templateFactoryMock);
+
+            templateFactoryMock.getTemplate.resolves(template);
+            // eslint-disable-next-line global-require
+            validator = require('../index').validatePipelineTemplate;
+        });
+
+        it('validates a valid yaml', () =>
+            validator(loadData(VALID_FULL_PIPELINE_TEMPLATE_PATH), templateFactoryMock).then(config => {
+                assert.isObject(config);
+                assert.deepEqual(config, JSON.parse(loadData('valid_full_pipeline_template_validated.json')));
+            }));
+
+        it('validates a poorly structured template', () =>
+            validator(loadData(BAD_STRUCTURE_PIPELINE_TEMPLATE_PATH), templateFactoryMock).then(result => {
+                assert.deepEqual(result.template, JSON.parse(loadData('bad_structure_pipeline_template.json')));
+                assert.strictEqual(result.errors.length, 2);
+
+                // check required description
+                const missingField = hoek.reach(result.template, result.errors[0].path[0]);
+
+                assert.strictEqual(result.errors[0].message, '"description" is required');
+                assert.isUndefined(missingField);
+
+                // check incorrect type
+                const chain = `${result.errors[1].path[0]}.${result.errors[1].path[1]}`;
+                const incorrectType = hoek.reach(result.template, chain).image;
+
+                assert.strictEqual(result.errors[1].message, '"config.shared.image" must be a string');
+                assert.isNumber(incorrectType);
+            }, assert.fail));
+
+        it('throws when validating incorrectly formatted yaml', () =>
             validator('main: :').then(assert.fail, err => {
                 assert.match(err, /YAMLException/);
             }));
