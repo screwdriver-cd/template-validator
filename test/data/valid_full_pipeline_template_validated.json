@@ -172,33 +172,33 @@
               "value": "sd-bot",
               "description": "User running build"
             }
-          },
-          "workflowGraph": {
+          }
+        },
+        "workflowGraph": {
             "edges": [
-              {
-                "dest": "main",
-                "src": "~commit"
-              },
-              {
-                "dest": "test",
-                "src": "~commit"
-              }
+                {
+                    "dest": "main",
+                    "src": "~commit"
+                },
+                {
+                    "dest": "test",
+                    "src": "~commit"
+                }
             ],
             "nodes": [
-              {
-                "name": "~pr"
-              },
-              {
-                "name": "~commit"
-              },
-              {
-                "name": "main"
-              },
-              {
-                "name": "test"
-              }
+                {
+                    "name": "~pr"
+                },
+                {
+                    "name": "~commit"
+                },
+                {
+                    "name": "main"
+                },
+                {
+                    "name": "test"
+                }
             ]
-          }
         }
       }
 }
