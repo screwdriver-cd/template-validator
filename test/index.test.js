@@ -59,6 +59,27 @@ describe('index test', () => {
                 assert.deepEqual(config, JSON.parse(loadData('valid_full_template.json')));
             }));
 
+        it('parses yaml merge keys', () => {
+            const yamlString = `
+<<: &metadata
+  namespace: template_namespace
+  name: merged
+  version: '1.0.0'
+  description: template using a merge key
+  maintainer: foo@bar.com
+config:
+  image: node:22
+  steps:
+    - test: echo test
+`;
+
+            return validator(yamlString, templateFactoryMock).then(result => {
+                assert.deepEqual(result.errors, []);
+                assert.strictEqual(result.template.name, 'merged');
+                assert.strictEqual(result.template.namespace, 'template_namespace');
+            });
+        });
+
         it('parses a valid yaml wtih extended steps', () =>
             validator(loadData(VALID_EXTENDED_STEPS_TEMPLATE_PATH), templateFactoryMock).then(config => {
                 assert.isObject(config);
@@ -159,6 +180,15 @@ describe('index test', () => {
             validator('main: :', templateFactoryMock).then(assert.fail, err => {
                 assert.match(err, /YAMLException/);
             }));
+
+        it('throws when parsing yaml without a document', () =>
+            Promise.all(
+                ['', '   ', '# comment only'].map(yamlString =>
+                    validator(yamlString, templateFactoryMock).then(assert.fail, err => {
+                        assert.match(err, /expected a document/);
+                    })
+                )
+            ));
 
         it('composing templates merges parameters as well', () =>
             validator(loadData(CHILD_TEMPLATE_WITH_PARAMS), templateFactoryMock).then(config => {

@@ -7,6 +7,13 @@ const {
 } = require('screwdriver-config-parser');
 const Yaml = require('js-yaml');
 const helper = require('./lib/helper');
+const YAML_SCHEMA = Yaml.CORE_SCHEMA.withTags(
+    Yaml.binaryTag,
+    Yaml.mergeTag,
+    Yaml.omapTag,
+    Yaml.pairsTag,
+    Yaml.timestampTag
+);
 
 /**
  * Loads the configuration from a stringified screwdriver-template.yaml
@@ -15,7 +22,7 @@ const helper = require('./lib/helper');
  * @return {Promise}           Promise that resolves to the template as a config object
  */
 async function loadTemplate(yamlString) {
-    return Yaml.load(yamlString);
+    return Yaml.load(yamlString, { schema: YAML_SCHEMA });
 }
 
 /**
