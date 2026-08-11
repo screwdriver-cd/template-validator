@@ -9,7 +9,7 @@
         "config": {
           "jobs": {
             "main": {
-              "image": "node:18",
+              "image": "node:20",
               "environment": {
                   "BAR": "foo",
                   "FOO": "foo",
@@ -81,9 +81,6 @@
                 },
                 {
                   "test": "npm test"
-                },
-                {
-                  "echo": "echo $FOO"
                 }
               ]
             },
